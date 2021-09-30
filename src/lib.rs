@@ -1,11 +1,8 @@
-#![allow(non_upper_case_globals)]
-#![allow(non_camel_case_types)]
-#![allow(non_snake_case)]
-#![allow(unused)]
 
+mod chuck;
 mod chugin;
 
-static mut data_offset: usize = 0;
+static mut DATA_OFFSET: usize = 0;
 
 /// data for the actual object itself
 #[derive(Debug)]
@@ -52,15 +49,15 @@ impl MyChugin {
     }
 }
 
-fn ck_query_impl(QUERY: *mut chugin::Chuck_DL_Query) -> chugin::CKResult {
-    let q = chugin::Query::new(QUERY)?;
+fn ck_query_impl(query: *mut chuck::Chuck_DL_Query) -> chugin::CKResult {
+    let q = chugin::Query::new(query)?;
     
     q.begin_class("RustOsc", "UGen")?;
     q.add_ctor(Some(ctor))?;
     q.add_dtor(Some(dtor))?;
     let offset = q.add_mvar("int", "@data", false)? as usize;
     unsafe { 
-        data_offset = offset;
+        DATA_OFFSET = offset;
     }
     q.add_ugen_func(Some(tick), 0, 1)?;
     q.end_class()?;
@@ -69,42 +66,42 @@ fn ck_query_impl(QUERY: *mut chugin::Chuck_DL_Query) -> chugin::CKResult {
 }
 
 #[no_mangle]
-pub extern "C" fn ck_version() -> chugin::t_CKUINT {
+pub extern "C" fn ck_version() -> chuck::t_CKUINT {
     chugin::version()
 }
 
 #[no_mangle]
-pub extern "C" fn ck_query(QUERY: *mut chugin::Chuck_DL_Query) -> chugin::t_CKBOOL {
+pub extern "C" fn ck_query(query: *mut chuck::Chuck_DL_Query) -> chuck::t_CKBOOL {
     println!("hello, chuck!");
     
-    match ck_query_impl(QUERY) {
-        Ok(_) => chugin::CK_TRUE,
-        Err(_) => chugin::CK_FALSE,
+    match ck_query_impl(query) {
+        Ok(_) => chuck::CK_TRUE,
+        Err(_) => chuck::CK_FALSE,
     }
 }
 
 #[no_mangle]
-pub extern "C" fn ctor(SELF: *mut chugin::Chuck_Object,
-        _ARGS: *mut ::std::os::raw::c_void,
-        _VM: *mut chugin::Chuck_VM,
-        _SHRED: *mut chugin::Chuck_VM_Shred,
-        _API: chugin::CK_DL_API) {
+pub extern "C" fn ctor(ck_self: *mut chuck::Chuck_Object,
+        _args: *mut ::std::os::raw::c_void,
+        _vm: *mut chuck::Chuck_VM,
+        _shred: *mut chuck::Chuck_VM_Shred,
+        _api: chuck::CK_DL_API) {
     let chugin = Box::new(MyChugin::new(44100.0, 200.0, 1.0));
     println!("MyChugin: {:?}", chugin);
     
     unsafe {
-        chugin::util::set_object_data(SELF, data_offset, chugin);
+        chugin::util::set_object_data(ck_self, DATA_OFFSET, chugin);
     }
 }
 
 #[no_mangle]
-pub extern "C" fn dtor(SELF: *mut chugin::Chuck_Object,
-        _VM: *mut chugin::Chuck_VM,
-        _SHRED: *mut chugin::Chuck_VM_Shred,
-        _API: chugin::CK_DL_API) {
+pub extern "C" fn dtor(ck_self: *mut chuck::Chuck_Object,
+        _vm: *mut chuck::Chuck_VM,
+        _shred: *mut chuck::Chuck_VM_Shred,
+        _api: chuck::CK_DL_API) {
     
     let chugin: Box<MyChugin> = unsafe {
-        chugin::util::get_object_data(SELF, data_offset)
+        chugin::util::get_object_data(ck_self, DATA_OFFSET)
     };
     
     println!("MyChugin: {:?}", chugin);
@@ -112,14 +109,14 @@ pub extern "C" fn dtor(SELF: *mut chugin::Chuck_Object,
 
 #[no_mangle]
 extern "C" fn tick(
-    SELF: *mut chugin::Chuck_Object,
-    _in_: f32,
+    ck_self: *mut chuck::Chuck_Object,
+    _in: f32,
     out: *mut f32,
-    _API: chugin::CK_DL_API,
-) -> chugin::t_CKBOOL {
+    _api: chuck::CK_DL_API,
+) -> chuck::t_CKBOOL {
     
     let mut chugin: Box<MyChugin> = unsafe {
-        chugin::util::get_object_data(SELF, data_offset)
+        chugin::util::get_object_data(ck_self, DATA_OFFSET)
     };
     
     unsafe {
@@ -128,5 +125,5 @@ extern "C" fn tick(
     
     Box::into_raw(chugin);
     
-    chugin::CK_TRUE
+    chuck::CK_TRUE
 }
