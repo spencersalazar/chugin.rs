@@ -40,13 +40,17 @@ impl MyChugin {
     }
     
     pub fn tick(&mut self) -> f32 {
-        let y = -1.0+self.phase;
+        let y = -1.0+self.phase*2.0;
         self.phase += self.phase_update;
         if self.phase > 1.0 {
             self.phase -= 1.0;
         }
         y*self.amp
     }
+    
+    // pub fn tick(&mut self, inp: f32) -> f32 {
+    //     inp*self.amp
+    // }
 }
 
 fn ck_query_impl(query: *mut chuck::Chuck_DL_Query) -> chugin::CKResult {
@@ -110,7 +114,7 @@ pub extern "C" fn dtor(ck_self: *mut chuck::Chuck_Object,
 #[no_mangle]
 extern "C" fn tick(
     ck_self: *mut chuck::Chuck_Object,
-    _in: f32,
+    _inp: f32,
     out: *mut f32,
     _api: chuck::CK_DL_API,
 ) -> chuck::t_CKBOOL {
