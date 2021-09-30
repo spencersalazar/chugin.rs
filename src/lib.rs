@@ -47,13 +47,9 @@ impl MyChugin {
         }
         y*self.amp
     }
-    
-    // pub fn tick(&mut self, inp: f32) -> f32 {
-    //     inp*self.amp
-    // }
 }
 
-fn ck_query_impl(query: *mut chuck::Chuck_DL_Query) -> chugin::CKResult {
+fn ck_query_impl(query: *mut chuck::DL_Query) -> chugin::CKResult {
     let q = chugin::Query::new(query)?;
     
     q.begin_class("RustOsc", "UGen")?;
@@ -75,7 +71,7 @@ pub extern "C" fn ck_version() -> chuck::t_CKUINT {
 }
 
 #[no_mangle]
-pub extern "C" fn ck_query(query: *mut chuck::Chuck_DL_Query) -> chuck::t_CKBOOL {
+pub extern "C" fn ck_query(query: *mut chuck::DL_Query) -> chuck::t_CKBOOL {
     println!("hello, chuck!");
     
     match ck_query_impl(query) {
@@ -85,10 +81,10 @@ pub extern "C" fn ck_query(query: *mut chuck::Chuck_DL_Query) -> chuck::t_CKBOOL
 }
 
 #[no_mangle]
-pub extern "C" fn ctor(ck_self: *mut chuck::Chuck_Object,
+pub extern "C" fn ctor(ck_self: *mut chuck::Object,
         _args: *mut ::std::os::raw::c_void,
-        _vm: *mut chuck::Chuck_VM,
-        _shred: *mut chuck::Chuck_VM_Shred,
+        _vm: *mut chuck::VM,
+        _shred: *mut chuck::VM_Shred,
         _api: chuck::CK_DL_API) {
     let chugin = Box::new(MyChugin::new(44100.0, 200.0, 1.0));
     println!("MyChugin: {:?}", chugin);
@@ -99,9 +95,9 @@ pub extern "C" fn ctor(ck_self: *mut chuck::Chuck_Object,
 }
 
 #[no_mangle]
-pub extern "C" fn dtor(ck_self: *mut chuck::Chuck_Object,
-        _vm: *mut chuck::Chuck_VM,
-        _shred: *mut chuck::Chuck_VM_Shred,
+pub extern "C" fn dtor(ck_self: *mut chuck::Object,
+        _vm: *mut chuck::VM,
+        _shred: *mut chuck::VM_Shred,
         _api: chuck::CK_DL_API) {
     
     let chugin: Box<MyChugin> = unsafe {
@@ -113,7 +109,7 @@ pub extern "C" fn dtor(ck_self: *mut chuck::Chuck_Object,
 
 #[no_mangle]
 extern "C" fn tick(
-    ck_self: *mut chuck::Chuck_Object,
+    ck_self: *mut chuck::Object,
     _inp: f32,
     out: *mut f32,
     _api: chuck::CK_DL_API,

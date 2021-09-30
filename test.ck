@@ -1,4 +1,4 @@
 
 RustOsc osc => dac;
 
-10::second => now;
+2::second => now;

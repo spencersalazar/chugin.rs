@@ -27,14 +27,14 @@ fn c_str(s: &CStr) -> *const i8 {
 
 /// Chugin Query wrapper class
 pub struct Query {
-    query: *mut chuck::Chuck_DL_Query,
+    query: *mut chuck::DL_Query,
 }
 
 /// Chugin Query wrapper class
 impl Query {
     
     /// Create new wrapper from ChucK type
-    pub fn new(query: *mut chuck::Chuck_DL_Query) -> CKResult<Query> {
+    pub fn new(query: *mut chuck::DL_Query) -> CKResult<Query> {
         if !query.is_null() {
             Ok(Query {
                 query: query
@@ -188,7 +188,7 @@ pub mod util {
     
     /// Set a data member variable in a ChucK object
     /// Note: the type in obj needs to be manually dropped/dealloced at some point
-    pub unsafe fn set_object_data<T>(ck_obj: *mut chuck::Chuck_Object, offset: usize, obj: Box<T>) {
+    pub unsafe fn set_object_data<T>(ck_obj: *mut chuck::Object, offset: usize, obj: Box<T>) {
         let data = (*ck_obj).data.offset(offset as isize);
         let ptr = data as *mut usize;
         *ptr = Box::into_raw(obj) as *mut T as usize;
@@ -196,7 +196,7 @@ pub mod util {
     
     /// Get a data member variable in a ChucK object
     /// Note: Box<T> will automatically drop/dealloc the object unless you call Box::into_raw on it
-    pub unsafe fn get_object_data<T>(ck_obj: *const chuck::Chuck_Object, offset: usize) -> Box<T> {
+    pub unsafe fn get_object_data<T>(ck_obj: *const chuck::Object, offset: usize) -> Box<T> {
         let data = (*ck_obj).data.offset(offset as isize);
         let ptr = data as *const usize;
         Box::from_raw(*ptr as *mut T)
