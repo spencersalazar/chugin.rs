@@ -13,7 +13,7 @@ fn main() {
     let bindings = bindgen::Builder::default()
         // The input header we would like to generate
         // bindings for.
-        .header("chuck/wrapper.h")
+        .header("include/wrapper.h")
         // force C++
         .clang_arg("-x").clang_arg("c++")
         .allowlist_type("Chuck_DL_Query")

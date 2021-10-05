@@ -1,8 +1,6 @@
 
-mod chuck;
-mod chugin;
-
-use macros::query_fn;
+use chugin;
+use chugin::chuck as chuck;
 
 static mut DATA_OFFSET: usize = 0;
 
@@ -51,7 +49,7 @@ impl MyChugin {
     }
 }
 
-#[query_fn]
+#[chugin::query_fn]
 fn ck_query_impl(query: *mut chuck::DL_Query) -> chugin::CKResult {
     let q = chugin::Query::new(query)?;
     

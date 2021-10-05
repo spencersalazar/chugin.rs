@@ -1,6 +1,9 @@
+pub mod chuck;
+
 use std::result::Result;
 use std::ffi::{CString, CStr};
-use super::chuck;
+
+pub use macros::query_fn;
 
 // chuck version is #define-d, so not supported by bindgen
 // major version must be the same between chuck:chugin
