@@ -2,6 +2,8 @@
 mod chuck;
 mod chugin;
 
+use macros::query_fn;
+
 static mut DATA_OFFSET: usize = 0;
 
 /// data for the actual object itself
@@ -49,6 +51,7 @@ impl MyChugin {
     }
 }
 
+#[query_fn]
 fn ck_query_impl(query: *mut chuck::DL_Query) -> chugin::CKResult {
     let q = chugin::Query::new(query)?;
     
@@ -63,21 +66,6 @@ fn ck_query_impl(query: *mut chuck::DL_Query) -> chugin::CKResult {
     q.end_class()?;
     
     Ok(())
-}
-
-#[no_mangle]
-pub extern "C" fn ck_version() -> chuck::t_CKUINT {
-    chugin::version()
-}
-
-#[no_mangle]
-pub extern "C" fn ck_query(query: *mut chuck::DL_Query) -> chuck::t_CKBOOL {
-    println!("hello, chuck!");
-    
-    match ck_query_impl(query) {
-        Ok(_) => chuck::CK_TRUE,
-        Err(_) => chuck::CK_FALSE,
-    }
 }
 
 #[no_mangle]
