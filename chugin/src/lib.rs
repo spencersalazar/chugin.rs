@@ -2,7 +2,7 @@ pub mod chuck;
 pub mod fn_macros;
 
 use std::result::Result;
-use std::ffi::{CString, CStr};
+use std::ffi;
 
 pub use macros::{query_fn};
 
@@ -24,9 +24,27 @@ pub fn version() -> chuck::t_CKUINT {
 /// Chugin result type
 pub type CKResult<T=(), E=&'static str> = Result<T, E>;
 
-/// internal function to convert CStr/CString -> array of bytes C-string
-fn c_str(s: &CStr) -> *const i8 {
-    &s.to_bytes_with_nul()[0] as *const u8 as *const i8
+/// Wrapper to encapsulate ffi::CString + easily convert to byte representation
+/// Essentially provides ?-compatible error handling for creation and a 
+/// container to manage the data while passing the byte representation to C 
+/// functions. 
+struct CString {
+    cstring: ffi::CString,
+}
+
+impl CString {
+    fn new(s: &str) -> CKResult<CString> {
+        let s = match ffi::CString::new(s) {
+            Ok(s) => s,
+            Err(_) => return Err("unable to convert C-string: name")
+        };
+        
+        return Ok(CString { cstring: s });
+    }
+    
+    fn c_str(&self) -> *const i8 {
+        &self.cstring.to_bytes_with_nul()[0] as *const u8 as *const i8
+    }
 }
 
 /// Chugin Query wrapper class
@@ -51,15 +69,8 @@ impl Query {
     /// Begin a new class
     pub fn begin_class(&self, name: &str, parent: &str) -> CKResult {
         
-        let name = match CString::new(name) {
-            Ok(s) => s,
-            Err(_) => return Err("unable to convert C-string: name")
-        };
-        
-        let parent = match CString::new(parent) {
-            Ok(s) => s,
-            Err(_) => return Err("unable to convert C-string: parent")
-        };
+        let name = CString::new(name)?;
+        let parent = CString::new(parent)?;
         
         let query = match unsafe { self.query.as_ref() } {
             Some(query) => query,
@@ -72,7 +83,7 @@ impl Query {
         };
         
         unsafe {
-            begin_class(self.query, c_str(&name), c_str(&parent));
+            begin_class(self.query, name.c_str(), parent.c_str());
         }
         
         Ok(())
@@ -121,15 +132,8 @@ impl Query {
     /// Add a member variable for the class that is being constructed
     pub fn add_mvar(&self, type_: &str, name: &str, is_const: bool) -> CKResult<chuck::t_CKUINT> {
         
-        let type_ = match CString::new(type_) {
-            Ok(s) => s,
-            Err(_) => return Err("unable to convert C-string: type")
-        };
-        
-        let name = match CString::new(name) {
-            Ok(s) => s,
-            Err(_) => return Err("unable to convert C-string: name")
-        };
+        let type_ = CString::new(type_)?;
+        let name = CString::new(name)?;
         
         let query = match unsafe { self.query.as_ref() } {
             Some(query) => query,
@@ -142,7 +146,7 @@ impl Query {
         };
         
         Ok(unsafe {
-            add_mvar(self.query, c_str(&type_), c_str(&name), if is_const { 1 } else { 0 })
+            add_mvar(self.query, type_.c_str(), name.c_str(), if is_const { 1 } else { 0 })
         })
     }
     
@@ -153,15 +157,8 @@ impl Query {
         args: &[(String,String)]
     ) -> CKResult {
         
-        let type_ = match CString::new(type_) {
-            Ok(s) => s,
-            Err(_) => return Err("unable to convert C-string: type")
-        };
-        
-        let name = match CString::new(name) {
-            Ok(s) => s,
-            Err(_) => return Err("unable to convert C-string: name")
-        };
+        let type_ = CString::new(type_)?;
+        let name = CString::new(name)?;
         
         let query = match unsafe { self.query.as_ref() } {
             Some(query) => query,
@@ -179,22 +176,15 @@ impl Query {
         };
         
         unsafe {
-            add_mfun(self.query, mfun, c_str(&type_), c_str(&name));
+            add_mfun(self.query, mfun, type_.c_str(), name.c_str());
         }
         
         for arg in args {
-            let type_ = match CString::new(arg.0.clone()) {
-                Ok(s) => s,
-                Err(_) => return Err("unable to convert C-string: type")
-            };
-        
-            let name = match CString::new(arg.1.clone()) {
-                Ok(s) => s,
-                Err(_) => return Err("unable to convert C-string: name")
-            };
+            let type_ = CString::new(&arg.0)?;
+            let name = CString::new(&arg.1)?;
             
             unsafe {
-                add_arg(self.query, c_str(&type_), c_str(&name));
+                add_arg(self.query, type_.c_str(), name.c_str());
             }
         }
         
