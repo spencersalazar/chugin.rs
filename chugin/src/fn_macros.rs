@@ -54,6 +54,29 @@ macro_rules! dtor {
 }
 
 #[macro_export]
+macro_rules! mfun {
+    ($ident:ident, $offset:expr, $t:ty, $obj:ident, $code:stmt)=>{
+        #[no_mangle]
+        pub extern "C" fn $ident(
+            ck_self: *mut Chuck_Object,
+            _args: *mut ::std::os::raw::c_void,
+            _return: *mut Chuck_DL_Return,
+            _vm: *mut Chuck_VM,
+            _shred: *mut Chuck_VM_Shred,
+            _api: CK_DL_API) {
+    
+            let $obj: Box<$t> = unsafe {
+                chugin::util::get_object_data(ck_self, $offset)
+            };
+            
+            $code
+            
+            Box::into_raw($obj);
+        }
+    }
+}
+
+#[macro_export]
 macro_rules! tick {
     ($ident:ident, $offset:expr, $t:ty, $obj:ident, $inp:ident, $out:expr)=>{
         #[no_mangle]

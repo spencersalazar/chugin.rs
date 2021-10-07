@@ -63,17 +63,42 @@ chugin::tick! (tick, DATA_OFFSET, MyChugin, obj, _inp, {
     obj.tick()
 });
 
+pub extern "C" fn set_freq(
+    ck_self: *mut chuck::Chuck_Object,
+    args: *mut ::std::os::raw::c_void,
+    return_: *mut chuck::Chuck_DL_Return,
+    _vm: *mut chuck::Chuck_VM,
+    _shred: *mut chuck::Chuck_VM_Shred,
+    _api: chuck::CK_DL_API) {
+
+    let mut obj: Box<MyChugin> = unsafe {
+        chugin::util::get_object_data(ck_self, DATA_OFFSET)
+    };
+    
+    let (freq, _) = unsafe { chugin::util::get_next_float(args) };
+    
+    obj.set_freq(freq as f32);
+    
+    unsafe { *return_ }.v_float = obj.get_freq() as f64;
+    
+    Box::into_raw(obj);
+}
+
 fn ck_query_impl(query: *mut chuck::DL_Query) -> chugin::CKResult {
     let q = chugin::Query::new(query)?;
 
     q.begin_class("RustOsc", "UGen")?;
+    
     q.add_ctor(Some(ctor))?;
     q.add_dtor(Some(dtor))?;
+    
     let offset = q.add_mvar("int", "@data", false)? as usize;
-    unsafe {
-        DATA_OFFSET = offset;
-    }
+    unsafe { DATA_OFFSET = offset; }
+    
     q.add_ugen_func(Some(tick), 0, 1)?;
+    
+    q.add_mfun(Some(set_freq), "float", "freq", &[(String::from("float"), String::from("f"))])?;
+    
     q.end_class()?;
 
     Ok(())

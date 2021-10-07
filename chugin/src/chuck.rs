@@ -15,6 +15,8 @@ pub type Object = Chuck_Object;
 // basic ChucK types not automatically imported by bindgen (due to #define)
 pub type t_CKUINT = ::std::os::raw::c_ulong;
 pub type t_CKBOOL = ::std::os::raw::c_ulong;
+pub type Float = f64;
+pub type Args = *mut ::std::os::raw::c_void;
 
 pub const CK_TRUE: t_CKBOOL = 1;
 pub const CK_FALSE: t_CKBOOL = 0;

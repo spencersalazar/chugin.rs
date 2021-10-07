@@ -147,6 +147,61 @@ impl Query {
     }
     
     /// Add a tick function for the class that is being constructed
+    pub fn add_mfun(&self, 
+        mfun: chuck::f_mfun, 
+        type_: &str, name: &str,
+        args: &[(String,String)]
+    ) -> CKResult {
+        
+        let type_ = match CString::new(type_) {
+            Ok(s) => s,
+            Err(_) => return Err("unable to convert C-string: type")
+        };
+        
+        let name = match CString::new(name) {
+            Ok(s) => s,
+            Err(_) => return Err("unable to convert C-string: name")
+        };
+        
+        let query = match unsafe { self.query.as_ref() } {
+            Some(query) => query,
+            None => return Err("invalid query object")
+        };
+        
+        let add_mfun = match query.add_mfun {
+            Some(f) => f,
+            None => return Err("invalid query object"),
+        };
+        
+        let add_arg = match query.add_arg {
+            Some(f) => f,
+            None => return Err("invalid query object"),
+        };
+        
+        unsafe {
+            add_mfun(self.query, mfun, c_str(&type_), c_str(&name));
+        }
+        
+        for arg in args {
+            let type_ = match CString::new(arg.0.clone()) {
+                Ok(s) => s,
+                Err(_) => return Err("unable to convert C-string: type")
+            };
+        
+            let name = match CString::new(arg.1.clone()) {
+                Ok(s) => s,
+                Err(_) => return Err("unable to convert C-string: name")
+            };
+            
+            unsafe {
+                add_arg(self.query, c_str(&type_), c_str(&name));
+            }
+        }
+        
+        Ok(())
+    }
+    
+    /// Add a tick function for the class that is being constructed
     pub fn add_ugen_func(&self, tick: chuck::f_tick, num_in: u32, num_out: u32) -> CKResult {
         
         let query = match unsafe { self.query.as_ref() } {
@@ -204,6 +259,16 @@ pub mod util {
         let data = (*ck_obj).data.offset(offset as isize);
         let ptr = data as *const usize;
         Box::from_raw(*ptr as *mut T)
+    }
+    
+    unsafe fn impl_get_next_arg<T: Copy>(args: chuck::Args) -> (T, chuck::Args) {
+        let arg: T = *(args as *mut T);
+        let args = args.offset(1);
+        (arg, args)
+    }
+        
+    pub unsafe fn get_next_float(args: chuck::Args) -> (chuck::Float, chuck::Args) {
+        impl_get_next_arg(args)
     }
 }
 
