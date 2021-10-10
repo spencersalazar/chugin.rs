@@ -88,16 +88,15 @@ macro_rules! mfun_getter_float {
 }
 
 #[macro_export]
-macro_rules! mfun_setter_getter_float {
-    ($ident_setter:ident,
-     $ident_getter:ident,
+macro_rules! mfun_setter_float {
+    ($ident:ident,
      $offset:expr,
      $t:ty,
      $obj:ident,
      $val:ident,
      $code_set:stmt,
      $code_get:expr)=>{
-        chugin::mfun! ($ident_setter, $offset, $t, $obj, args, return_, {
+        chugin::mfun! ($ident, $offset, $t, $obj, args, return_, {
 
             let (_, $val) = unsafe {
                 chugin::util::get_next_arg(args)
@@ -109,6 +108,20 @@ macro_rules! mfun_setter_getter_float {
 
             unsafe { *return_ }.v_float = the_val as f64;
         });
+    }
+}
+
+#[macro_export]
+macro_rules! mfun_setter_getter_float {
+    ($ident_setter:ident,
+     $ident_getter:ident,
+     $offset:expr,
+     $t:ty,
+     $obj:ident,
+     $val:ident,
+     $code_set:stmt,
+     $code_get:expr)=>{
+        chugin::mfun_setter_float! ($ident_setter, $offset, $t, $obj, $val, $code_set, $code_get);
 
         chugin::mfun_getter_float! ($ident_getter, $offset, $t, $obj, $code_get);
     }
