@@ -64,6 +64,14 @@ impl VAOnePole {
     }
 }
 
+/// Built-in or custom saturation in the filter's feedback loop
+#[derive(Debug)]
+enum Saturator {
+    None,
+    Tanh,
+    Custom(fn (x: Float)->Float),
+}
+
 #[derive(Debug)]
 #[allow(non_snake_case)]
 struct Korg35Filter {
@@ -75,6 +83,8 @@ struct Korg35Filter {
     hpf: VAOnePole,
     a0: Float,
     K_norm: Float,
+    saturation: Float,
+    saturator: Saturator,
 }
 
 impl Korg35Filter {
@@ -88,6 +98,8 @@ impl Korg35Filter {
             hpf: VAOnePole::new(srate),
             a0: 1.0,
             K_norm: 1.0,
+            saturation: 1.0,
+            saturator: Saturator::Tanh,
         };
         
         // sane defaults
@@ -131,10 +143,17 @@ impl Korg35Filter {
     
     pub fn tick(&mut self, xn: Sample) -> Sample {
         let y1 = self.lpf1.tick(xn);
+        
         #[allow(non_snake_case)]
         let S35 = self.hpf.get_feedback() + self.lpf2.get_feedback();
         
         let u = self.a0*(y1+S35);
+        
+        let u = match self.saturator {
+            Saturator::None => u,
+            Saturator::Tanh => (u*self.saturation).tanh(),
+            Saturator::Custom(f) => f(u*self.saturation),
+        };
         
         let y = self.K*self.lpf2.tick(u);
         
