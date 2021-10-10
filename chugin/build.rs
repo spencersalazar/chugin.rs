@@ -15,7 +15,8 @@ fn main() {
         // bindings for.
         .header("include/wrapper.h")
         // force C++
-        .clang_arg("-x").clang_arg("c++")
+        .clang_arg("-x")
+        .clang_arg("c++")
         .allowlist_type("Chuck_DL_Query")
         .allowlist_type("Chuck_DL_Api::Api")
         .allowlist_type("Chuck_Object")

@@ -3,7 +3,7 @@
 #![allow(non_snake_case)]
 #![allow(unused)]
 
-// include chuck_dl.h and associated bindings 
+// include chuck_dl.h and associated bindings
 include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
 
 pub type DL_Query = Chuck_DL_Query;

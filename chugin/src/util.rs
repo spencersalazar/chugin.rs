@@ -2,7 +2,7 @@
 
 use crate::chuck;
 use crate::cktype::CKType;
-    
+
 /// Set a data member variable in a ChucK object
 /// Note: the type in obj needs to be manually dropped/dealloced at some point
 pub unsafe fn set_object_data<T>(ck_obj: *mut chuck::Object, offset: usize, obj: Box<T>) {
@@ -18,7 +18,7 @@ pub unsafe fn get_object_data<T>(ck_obj: *const chuck::Object, offset: usize) ->
     let ptr = data as *const usize;
     Box::from_raw(*ptr as *mut T)
 }
-        
+
 pub fn get_next_arg<T: CKType>(args: chuck::Args) -> (chuck::Args, T) {
     T::get_next_arg(args)
 }

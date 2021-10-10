@@ -1,9 +1,9 @@
 pub mod chuck;
 pub mod cktype;
+mod cstring;
+pub mod fn_macros;
 pub mod query;
 pub mod util;
-pub mod fn_macros;
-mod cstring;
 
 use std::result::Result;
 
@@ -27,4 +27,4 @@ pub fn version() -> chuck::t_CKUINT {
 }
 
 /// Chugin result type
-pub type CKResult<T=(), E=&'static str> = Result<T, E>;
+pub type CKResult<T = (), E = &'static str> = Result<T, E>;
