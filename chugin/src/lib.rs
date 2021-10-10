@@ -1,10 +1,12 @@
 pub mod chuck;
 pub mod fn_macros;
+pub mod cktype;
 
 use std::result::Result;
 use std::ffi;
 
 pub use macros::{query_fn};
+pub use cktype::CKType as CKType;
 
 // chuck version is #define-d, so not supported by bindgen
 // major version must be the same between chuck:chugin
@@ -234,7 +236,8 @@ impl Query {
 /// Utilities for working with Chugins
 pub mod util {
     use crate::chuck;
-    
+    use crate::cktype::CKType;
+        
     /// Set a data member variable in a ChucK object
     /// Note: the type in obj needs to be manually dropped/dealloced at some point
     pub unsafe fn set_object_data<T>(ck_obj: *mut chuck::Object, offset: usize, obj: Box<T>) {
@@ -250,15 +253,9 @@ pub mod util {
         let ptr = data as *const usize;
         Box::from_raw(*ptr as *mut T)
     }
-    
-    unsafe fn impl_get_next_arg<T: Copy>(args: chuck::Args) -> (T, chuck::Args) {
-        let arg: T = *(args as *mut T);
-        let args = args.offset(1);
-        (arg, args)
-    }
-        
-    pub unsafe fn get_next_float(args: chuck::Args) -> (chuck::Float, chuck::Args) {
-        impl_get_next_arg(args)
+            
+    pub fn get_next_arg<T: CKType>(args: chuck::Args) -> (chuck::Args, T) {
+        T::get_next_arg(args)
     }
 }
 

@@ -100,7 +100,9 @@ macro_rules! mfun_setter_getter_float {
      $code_get:expr)=>{
         chugin::mfun! ($ident_setter, $offset, $t, $obj, args, return_, {
             
-            let ($val, _) = unsafe { chugin::util::get_next_float(args) };
+            let (_, $val) = unsafe { 
+                chugin::util::get_next_arg(args) 
+            } as (chuck::Args, chuck::Float);
     
             $code_set
             
@@ -129,9 +131,7 @@ macro_rules! tick {
             };
             
             let out_ = $out;
-            unsafe {
-                *out = out_;
-            }
+            unsafe { *out = out_; }
     
             Box::into_raw($obj);
     
