@@ -63,26 +63,12 @@ chugin::tick! (tick, DATA_OFFSET, MyChugin, obj, _inp, {
     obj.tick()
 });
 
-pub extern "C" fn set_freq(
-    ck_self: *mut chuck::Chuck_Object,
-    args: *mut ::std::os::raw::c_void,
-    return_: *mut chuck::Chuck_DL_Return,
-    _vm: *mut chuck::Chuck_VM,
-    _shred: *mut chuck::Chuck_VM_Shred,
-    _api: chuck::CK_DL_API) {
-
-    let mut obj: Box<MyChugin> = unsafe {
-        chugin::util::get_object_data(ck_self, DATA_OFFSET)
-    };
-    
-    let (freq, _) = unsafe { chugin::util::get_next_float(args) };
-    
-    obj.set_freq(freq as f32);
-    
-    unsafe { *return_ }.v_float = obj.get_freq() as f64;
-    
-    Box::into_raw(obj);
-}
+chugin::mfun_setter_getter_float! (
+    set_freq, get_freq, DATA_OFFSET, 
+    MyChugin, obj, freq, 
+    { obj.set_freq(freq as f32); }, 
+    { obj.get_freq() }
+);
 
 fn ck_query_impl(query: *mut chuck::DL_Query) -> chugin::CKResult {
     let q = chugin::Query::new(query)?;

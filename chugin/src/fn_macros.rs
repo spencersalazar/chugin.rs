@@ -55,24 +55,61 @@ macro_rules! dtor {
 
 #[macro_export]
 macro_rules! mfun {
-    ($ident:ident, $offset:expr, $t:ty, $obj:ident, $code:stmt)=>{
+    ($ident:ident, $offset:expr, $t:ty, $obj:ident, $args:ident, $return_:ident, $code:stmt)=>{
         #[no_mangle]
         pub extern "C" fn $ident(
-            ck_self: *mut Chuck_Object,
-            _args: *mut ::std::os::raw::c_void,
-            _return: *mut Chuck_DL_Return,
-            _vm: *mut Chuck_VM,
-            _shred: *mut Chuck_VM_Shred,
-            _api: CK_DL_API) {
-    
-            let $obj: Box<$t> = unsafe {
+            ck_self: *mut chuck::Chuck_Object,
+            $args: *mut ::std::os::raw::c_void,
+            $return_: *mut chuck::Chuck_DL_Return,
+            _vm: *mut chuck::Chuck_VM,
+            _shred: *mut chuck::Chuck_VM_Shred,
+            _api: chuck::CK_DL_API) {
+
+            let mut $obj: Box<$t> = unsafe {
                 chugin::util::get_object_data(ck_self, $offset)
             };
             
             $code
-            
+    
             Box::into_raw($obj);
         }
+    }
+}
+
+#[macro_export]
+macro_rules! mfun_getter_float {
+    ($ident:ident, $offset:expr, $t:ty, $obj:ident, $code:expr)=>{
+        chugin::mfun! ($ident, $offset, $t, $obj, args, return_, {
+            
+            let val = $code;
+                
+            unsafe { *return_ }.v_float = val as f64;
+        });
+    }
+}
+
+#[macro_export]
+macro_rules! mfun_setter_getter_float {
+    ($ident_setter:ident, 
+     $ident_getter:ident,
+     $offset:expr, 
+     $t:ty, 
+     $obj:ident, 
+     $val:ident, 
+     $code_set:stmt,
+     $code_get:expr)=>{
+        chugin::mfun! ($ident_setter, $offset, $t, $obj, args, return_, {
+            
+            let ($val, _) = unsafe { chugin::util::get_next_float(args) };
+    
+            $code_set
+            
+            let the_val = $code_get;
+                
+            unsafe { *return_ }.v_float = the_val as f64;
+        });
+        
+        chugin::mfun_getter_float! ($ident_getter, $offset, $t, $obj, $code_get);
     }
 }
 
