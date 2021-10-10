@@ -51,12 +51,10 @@ impl MyChugin {
 
 chugin::ctor! (ctor, DATA_OFFSET, {
     let obj = MyChugin::new(44100.0, 200.0, 1.0);
-    println!("creating MyChugin: {:?}", obj);
     obj
 });
 
 chugin::dtor! (dtor, DATA_OFFSET, MyChugin, obj, {
-    println!("deleting MyChugin: {:?}", obj);
 });
 
 chugin::tick! (tick, DATA_OFFSET, MyChugin, obj, _inp, {
