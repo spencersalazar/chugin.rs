@@ -1,91 +1,9 @@
+mod util;
+mod blit;
+
 use chugin;
 use chugin::chuck;
-use num::Integer;
-
-pub type Float = f32;
-pub type Sample = Float;
-const PI: Float = std::f32::consts::PI;
-const EPSILON: Float = f32::EPSILON;
-
-trait DSPUtil {
-    fn wrap_under(&self, val: Self) -> Self;
-    
-    fn floor_odd(&self) -> Self;
-}
-
-impl DSPUtil for f32 {
-    fn wrap_under(&self, val: f32) -> f32 {
-        let mut x = *self;
-        // todo: closed form/non-branching version
-        while x > val { x -= val; }
-        x
-    }
-
-    fn floor_odd(&self) -> f32 {
-        2.0*(self/2.0).floor()+1.0
-    }
-}
-
-#[derive(Debug)]
-enum BlitHarmonics {
-    Num(i32),
-    Max,
-}
-
-#[derive(Debug)]
-#[allow(non_snake_case)]
-struct Blit {
-    srate: Float,
-    freq: Float,
-    harmonics: BlitHarmonics,
-    /// period
-    P: Float,
-    /// number of harmonics
-    M: Float,
-    /// phase update
-    phase: Float,
-    /// phase update
-    update: Float,
-}
-
-impl Blit {
-    pub fn new(srate: Float) -> Blit {
-        let mut blit = Blit {
-            srate: srate,
-            freq: 200.0,
-            harmonics: BlitHarmonics::Max,
-            P: 1.0,
-            M: 1.0,
-            phase: 0.0,
-            update: 0.1,
-        };
-        
-        // sane default
-        blit.set_freq(220.0);
-        
-        blit
-    }
-    
-    pub fn set_freq(&mut self, freq: Float) {
-        self.freq = freq;
-        self.P = self.srate/freq;
-        self.update = 1.0/self.P;
-        self.M = self.P.floor_odd()
-    }
-    
-    pub fn tick(&mut self) -> Float {
-        let denom = (PI*self.phase).sin();
-        let y = if denom < EPSILON {
-            1.0
-        } else {
-            (self.M*PI*self.phase).sin() / (self.P*denom)
-        };
-        
-        self.phase = (self.phase+self.update).wrap_under(1.0);
-        
-        y
-    }
-}
+use crate::blit::{Float, Blit};
 
 static mut DATA_OFFSET: usize = 0;
 
