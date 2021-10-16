@@ -1,9 +1,8 @@
-mod util;
-mod blit;
-
 use chugin;
 use chugin::chuck;
-use crate::blit::{Float, Blit};
+use dspz::types::Float;
+use dspz::oscs::blit::Blit;
+use dspz::traits::{Generator,Periodic};
 
 static mut DATA_OFFSET: usize = 0;
 
@@ -24,7 +23,7 @@ chugin::mfun_setter_getter_float!(
     {
         blit.set_freq(freq as Float);
     },
-    { blit.freq }
+    { blit.get_freq() }
 );
 
 chugin::tick!(tick, DATA_OFFSET, Blit, obj, _inp, { 
