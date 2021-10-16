@@ -1,0 +1,11 @@
+[package]
+name = "blit"
+version = "0.1.0"
+edition = "2018"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+num = "0.4"
+chugin = { path = "../../" }
