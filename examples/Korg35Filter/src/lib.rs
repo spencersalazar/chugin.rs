@@ -1,9 +1,6 @@
 use chugin;
 use chugin::chuck;
 
-mod korg35filter;
-mod vaonepole;
-
 use korg35filter::{Float, Sample, Korg35Filter};
 
 static mut DATA_OFFSET: usize = 0;

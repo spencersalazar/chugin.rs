@@ -10,3 +10,4 @@ crate-type = ["cdylib"]
 
 [dependencies]
 chugin = { path = "../../" }
+korg35filter = { path = "../../../korg35filter.rs" }
