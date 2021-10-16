@@ -1,26 +1,28 @@
 use chugin;
 use chugin::chuck;
 
-use korg35filter::{Float, Sample, Korg35Filter};
+use dspz::types::Float;
+use dspz::filters::korg35::Korg35;
+use dspz::traits::Processor;
 
 static mut DATA_OFFSET: usize = 0;
 
 chugin::ctor!(ctor, DATA_OFFSET, {
-    let obj = Korg35Filter::new(44100.0);
+    let obj = Korg35::new(44100.0);
     obj
 });
 
-chugin::dtor!(dtor, DATA_OFFSET, Korg35Filter, _obj, {});
+chugin::dtor!(dtor, DATA_OFFSET, Korg35, _obj, {});
 
-chugin::tick!(tick, DATA_OFFSET, Korg35Filter, obj, inp, { 
-    obj.tick(inp as Sample) as f32
+chugin::tick!(tick, DATA_OFFSET, Korg35, obj, inp, { 
+    obj.tick(inp as Float) as f32
 });
 
 chugin::mfun_setter_getter_float!(
     set_freq,
     get_freq,
     DATA_OFFSET,
-    Korg35Filter,
+    Korg35,
     k35,
     freq,
     {
@@ -33,7 +35,7 @@ chugin::mfun_setter_getter_float!(
     set_k,
     get_k,
     DATA_OFFSET,
-    Korg35Filter,
+    Korg35,
     k35,
     k,
     {
