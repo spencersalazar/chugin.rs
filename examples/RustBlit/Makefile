@@ -19,9 +19,9 @@ run: $(CHUGIN_FILE)
 
 .PHONY: scope
 scope: $(CHUGIN_FILE)
-	chuck -g$(CWD)/$(CHUGIN_FILE) -v5 test.ck /Applications/miniAudicle.app/Contents/Resources/examples/basic/rec-auto.ck
+	chuck -g$(CWD)/$(CHUGIN_FILE) test.ck /Applications/miniAudicle.app/Contents/Resources/examples/basic/rec-auto.ck
 
 .PHONY: null
 null: $(CHUGIN_FILE)
-	chuck -g$(CWD)/$(CHUGIN_FILE) -v5 null-test.ck /Applications/miniAudicle.app/Contents/Resources/examples/basic/rec-auto.ck
+	chuck -g$(CWD)/$(CHUGIN_FILE) null-test.ck /Applications/miniAudicle.app/Contents/Resources/examples/basic/rec-auto.ck
 

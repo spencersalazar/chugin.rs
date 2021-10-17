@@ -2,7 +2,7 @@ use chugin;
 use chugin::chuck;
 
 use dspz::types::Float;
-use dspz::filters::korg35::Korg35;
+use dspz::filter::korg35::Korg35;
 use dspz::traits::Processor;
 
 static mut DATA_OFFSET: usize = 0;

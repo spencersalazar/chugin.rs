@@ -1,7 +1,7 @@
 use chugin;
 use chugin::chuck;
 use dspz::types::Float;
-use dspz::oscs::blit::Blit;
+use dspz::osc::blit::Blit;
 use dspz::traits::{Generator,Periodic};
 
 static mut DATA_OFFSET: usize = 0;
