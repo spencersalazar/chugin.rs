@@ -8,4 +8,4 @@ crate-type = ["cdylib"]
 
 [dependencies]
 chugin = { path = "../../" }
-dspz = { path = "../../../dspz" }
+dspz = { git = "https://github.com/spencersalazar/dspz.git" }
