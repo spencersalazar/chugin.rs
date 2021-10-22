@@ -1,6 +1,6 @@
-# Rust2ck
+# chugin.rs
 
 Rust <> ChucK (Chugin) bindings generator. 
 
-HEAVILY Work in Progress
+HEAVILY work in progress. 
 
